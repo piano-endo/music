@@ -1,113 +1,79 @@
-// import React, {useState} from "react";
-
-// function Artist() {
-//     const headers = new Headers({
-//         "User-Agent": "0.x pianoe@umich.edu", // Replace with your actual email
-//     });
-
-//     const url = "https://musicbrainz.org/ws/2/artist?query=country:GB%20AND%20gender:female%20AND%20type:person&fmt=json";
-//     const baseUrl = "https://musicbrainz.org/ws/2/artist/"
-//     const endUrl = "&fmt=json"
-//     const [artistsId, setArtistsId] = useState([])
-
-//     fetch(url, {
-//         method: "GET",
-//         headers: headers,
-//     })
-//     .then((res)=>{
-//         return(res.json())
-//     })
-//     .then((json)=>{
-//         json["artists"].map((artist)=>{
-//             artistsId.push(baseUrl + artist["id"] + endUrl);
-//         })
-//         setArtistsId(artistsId)
-//     })
-// }
-
-// export default Artist;
-
+import {Artists} from "./util/artist_data";
 import React, { useState, useEffect } from "react";
+import Genre from "./Genre";
+import Card from 'react-bootstrap/Card';
+import Badge from 'react-bootstrap/Badge';
+import Stack from 'react-bootstrap/Stack';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import {useNavigate} from 'react-router-dom';
+import './Button.css'
+import './Tag.css'
+import './Overflow.css'
+import './Container.css'
 
-function Artist() {
-  const headers = new Headers({
-    "User-Agent": "0.x pianoe@umich.edu", // Replace with your actual email
-    Accept: "application/json",
-  });
+const Artist = () => {
+    const navigate = useNavigate()
+    const [genreList, setGenreList] = useState([]);
+    const [filteredArtists, setFilteredArtists] = useState(Artists.artists)
+    const [selectedGenre, setSelectedGenre] = useState(null);
+    // const addUniqueGenre = (genre) => {
+    //     if(!genreList.includes(genre)) {
+    //       setGenreList([...genreList, genre])
+    //     }
+    //     console.log(genreList);
+    // };
+    // const allGenres = Artists.artists.map((artist) => {
+    //     artist.genres.map((genre) => {
+    //       addUniqueGenre(genre);
+    //     })
+    // })
+    const allGenres = Array.from(
+        new Set(Artists.artists.flatMap((artist) => artist.genres))
+    );
+    useEffect(() => {
+        setFilteredArtists(
+            selectedGenre
+                ? Artists.artists.filter((artist)=> artist.genres.includes(selectedGenre))
+                : Artists.artists
+        );
+    }, [selectedGenre]);
 
-  const url =
-    "https://musicbrainz.org/ws/2/artist?query=country:GB%20AND%20gender:female%20AND%20type:person&fmt=json";
-  const baseUrl = "https://musicbrainz.org/ws/2/artist/";
-  const endUrl = "?inc=releases&fmt=json";
-
-  const [artistsId, setArtistsId] = useState([]);
-  const [artists, setArtists] = useState([]);
-
-  // Fetch artist IDs
-  useEffect(() => {
-    fetch(url, {
-      method: "GET",
-      headers: headers,
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        const ids = json["artists"].map((artist) => baseUrl + artist["id"] + endUrl);
-        setArtistsId(ids); // Update the state with the list of artist URLs
-      })
-      .catch((error) => console.error("Error fetching artist data:", error));
-  }, []); // Empty dependency array ensures this runs only once
-
-  // Fetch data for each artist ID
-  useEffect(() => {
-    if (artistsId.length > 0) {
-      const fetchArtistData = async () => {
-        const fetchedArtists = [];
-        for (const artistUrl of artistsId) {
-          try {
-            const res = await fetch(artistUrl, {
-              method: "GET",
-              headers: headers,
-            });
-            const data = await res.json();
-            fetchedArtists.push(data); // Collect artist data
-          } catch (error) {
-            console.error("Error fetching artist data:", error);
-          }
-        }
-        setArtists(fetchedArtists); // Update state with all fetched artist data
-        console.log(fetchedArtists);
-      };
-
-      fetchArtistData();
-    }
-  }, [artistsId]); // Runs whenever artistsId is updated
-
-  return (
-    // <div>
-    //   <h2>Artists</h2>
-    //   <ul>
-    //     {artists.map((artist, index) => (
-    //       <li key={index}>
-    //         <h3>{artist.name}</h3>
-    //         <p>{artist.disambiguation || "No additional info available"}</p>
-    //       </li>
-    //     ))}
-    //   </ul>
-    // </div>
-    artists.map((artist, index) => (
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">{artist.name}</h5>
-                <p class="card-text">{artist.releases.length}</p>
-                <a href="#" class="btn btn-primary">More Details</a>
-            </div>
-            <div class="card-footer text-body-secondary">
-                explore
-            </div>
+    return (
+        <div className="container mt-5 mb-5">
+            <Genre
+                genreList = {allGenres}
+                onGenreSelect = {setSelectedGenre}
+                className = "button-style"
+            />
+            <Row className="mt-5">
+            {filteredArtists.map((artist) => (
+                <Col xs={12} md={4} className="mb-5">
+                    <Card>
+                        <Card.Img variant="top" src={artist.images[0].url} />
+                        <Card.Body>
+                            <Card.Title>{artist.name}</Card.Title>
+                            <div className="mb-2 container" style={{ maxHeight: "25px", overflowY: "auto", whiteSpace: "nowrap"}}>
+                                <Stack>
+                                    <Col className="overflow-tag mr-3">
+                                        {artist.genres.map((genre)=>
+                                            <Badge className="tag-style">{genre}</Badge>
+                                        )}
+                                    </Col>
+                                </Stack>
+                            </div>
+                            <button
+                                className="btn button-style"
+                                onClick={() => navigate(`/artist/${artist.id}`)}
+                            >
+                                Learn More
+                            </button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            ))}
+            </Row>
         </div>
-    ))
-  );
+    )
 }
-
 export default Artist;
-
