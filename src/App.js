@@ -1,25 +1,22 @@
-import logo from './icon.svg';
 import './App.css';
 import Artist from './Components/Artist'
-import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ArtistDetail from "./Components/ArtistDetail";
 
-// function App() {
-
-//   <div className="App">
-//     <Artist />
-
-//   </div>
-// }
-
+// use react router API
 const App = () => {
   return (
-      <BrowserRouter>
+        // set basename like below according to https://stackoverflow.com/questions/47601290/react-router-url-issues-after-deployment
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
+            {/* refer to this website for setting different paths - https://www.geeksforgeeks.org/reactjs-router/ */}
+
+          {/* container for all routes */}
           <Routes>
+                {/* single route and a component to render at destination */}
               <Route path="/" element={<Artist />} />
               <Route path="/artist/:id" element={<ArtistDetail />} />
           </Routes>
+
       </BrowserRouter>
   );
 };

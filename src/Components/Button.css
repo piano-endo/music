@@ -3,3 +3,11 @@
     color: ivory;
     border: indianred;
 }
+
+.button-style:disabled {
+    background-color:darkgray;
+}
+
+.button-style:hover {
+    background-color: rgb(255, 87, 87);
+}

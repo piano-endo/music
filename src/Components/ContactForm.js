@@ -1,80 +1,95 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
-import InputGroup from 'react-bootstrap/InputGroup';
+import Toast from 'react-bootstrap/Toast';
 import {useState} from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-const initialFormValues = {
-    firstName: 'fn',
-    lastName: 'ln',
-};
+import './Button.css'
 
 const ContactForm = () => {
-    const [name, setName] = useState("")
-    const [checked, setChecked] = useState(false);
-    const [formState, setFormState] = useState(initialFormValues);
-    const [radioValue, setRadioValue] = useState('1');
-    const radios = [
-        { name: 'Option 1', value: '1' },
-        { name: 'Option 2', value: '2' },
-    ];
-    const allNotEmpty = !!formState.firstName && !!formState.lastName;
-    const firstNameString = typeof formState.firstName === "string";
-    const lastNameString = typeof formState.lastName === "string";
+    // Need these states to see if the fields have been filled or not
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [contactInfo, setContactInfo] = useState("");
+
+    const [showToast, setShowToast] = useState(false);
+
+    const submitForm = () => {
+        // display toast
+        setShowToast(true);
+
+        // reset fields back to blank
+        setFirstName("");
+        setLastName("");
+        setContactInfo("");
+    }
 
     return (
-        <Form className="mb-5">
-            <Form.Group className="mb-3" controlId="formFirstName">
-                <Form.Label>whats ur first name?</Form.Label>
-                <Form.Control
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <Form.Text
-                    className="text-muted"
-                    hidden={name.length<1}
-                >
-                hi {name}
-                </Form.Text>
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formLastName">
-                <Form.Label>how about your last name?</Form.Label>
-                <Form.Control/>
-            </Form.Group>
-            
-            {/* <Form.Label>what type of question do u have?</Form.Label>
-            <ButtonGroup className="mb-3">
-                {radios.map((radio, idx) => (
-                <ToggleButton
-                    key={idx}
-                    id={`radio-${idx}`}
-                    type="radio"
-                    // variant={idx % 2 ? 'outline-success' : 'outline-danger'}
-                    name="radio"
-                    value={radio.value}
-                    checked={radioValue === radio.value}
-                    onChange={(e) => setRadioValue(e.currentTarget.value)}
-                >
-                    {radio.name}
-                </ToggleButton>
-                ))}
-            </ButtonGroup> */}
-
-            {/* <InputGroup className="mb-3">
-                <InputGroup.Text>what is ur question?</InputGroup.Text>
-                <Form.Control as="textarea" aria-label="With textarea" />
-            </InputGroup> */}
-
-            <Button 
-                variant="primary"
-                type="submit"
-                disabled={ !(allNotEmpty && firstNameString && lastNameString) }
+        <>
+            {/* Take advantage of Toast component from React Bootstrap */}
+            {/* When clicked, toast displays itself only for 3 seconds */}
+            <Toast
+                onClose={() => setShowToast(false)} // Close the toast
+                show={showToast} // Show/hide based on state
+                delay={3000} // Auto-hide after 3 seconds
+                autohide
             >
-                Submit
-            </Button>
-        </Form>
+                <Toast.Header>
+                    <strong className="me-auto">Form Submitted</strong>
+                    <small>Thanks!</small>
+                </Toast.Header>
+                <Toast.Body>
+                    Hi {firstName}, we'll be in touch soon.
+                </Toast.Body>
+            </Toast>
+
+            {/* create a form with margin-bottom */}
+            <Form className="mb-5">
+
+                {/* collect first name */}
+                <Form.Group className="mb-3" controlId="formFirstName">
+                    <Form.Label>whats ur first name?</Form.Label>
+                    <Form.Control
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                    />
+                    {/* acknowledge the user */}
+                    <Form.Text
+                        className="text-muted"
+                        hidden={firstName.length<1}
+                    >
+                    hi {firstName}
+                    </Form.Text>
+                </Form.Group>
+
+                {/* collect last name */}
+                <Form.Group className="mb-3" controlId="formLastName">
+                    <Form.Label>how about your last name?</Form.Label>
+                    <Form.Control
+                        value={lastName}
+                    />
+                </Form.Group>
+
+                {/* collect contact information */}
+                <Form.Group className="mb-3" controlId="formContactInfo">
+                    <Form.Label>how can we contact you?</Form.Label>
+                    <Form.Control
+                        value={contactInfo}
+                        onChange={(e) => setContactInfo(e.target.value)}
+                    />
+                </Form.Group>
+
+                {/* button is disabled until first name and contact information is entered */}
+                {/* show a toast upon clicking */}
+                <Button
+                    variant="primary"
+                    type="button"
+                    onClick={submitForm}
+                    disabled={ !firstName || !contactInfo }
+                    className='button-style'
+                >
+                    Submit
+                </Button>
+            </Form>
+        </>
     );
 }
 

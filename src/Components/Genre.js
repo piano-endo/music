@@ -1,84 +1,40 @@
-// const headers = new Headers({
-//   "User-Agent"   : "0.x benm@umich.edu"
-// });
-// const url = 'https://musicbrainz.org/ws/2/genre/all?limit=10&offset=0&fmt=json'
-
-
-
-// function Artist() {
-//   console.log("Testing artist")
-//   return (
-//     fetch(url, {
-//       method  : 'GET', 
-//       headers : headers 
-//     })
-//     .then(res => res.json())
-//     .then(json => console.log(json))
-//   )
-// }
-
-// export default Artist();
-
-// function Genre() {
-
-//   const headers = new Headers({
-//     "User-Agent": "0.x pianoe@umich.edu", // Replace with your actual email
-//   });
-
-//   const url = "https://musicbrainz.org/ws/2/genre/all?limit=10&offset=0&fmt=json";
-//   const [genres, setGenres] = useState([]); //default is empty string and the value can be updated with setGenres
-//   // const url = "/ws/2/genre/all?limit=10&offset=0&fmt=json"; // just the endpoint because I'm using proxy
-//   console.log("Attempting to fetch data from:", url);
-
-//   fetch(url, {
-//     method: "GET",
-//     headers: headers,
-//   })
-//     .then((res) => {
-//       console.log("Raw response:", res);
-//       if (!res.ok) {
-//         throw new Error(`HTTP error! Status: ${res.status}`);
-//       }
-//       return res.json();
-//     })
-//     .then((data) => {
-//       console.log("Fetched Data:", data["genres"][0]["name"]);
-//       // setGenres(data["genres"][0]["name"])
-//       setGenres(data["genres"].map((genre) => <li>{genre["name"]}</li>))
-//     })
-//     .catch((error) => console.error("Error fetching data:", error));
-
-    
-
-//   return (
-//     <div>
-//         <p>Genres</p>
-//         <ul>{genres}</ul>
-//     </div>
-//   );
-// };
-
-// export default Genre;
-
 import React, { useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
+import './Button.css'
+
+// takes a list of unique genres and a function to control which genre is selected at the moment
 
 function Genre({genreList, onGenreSelect}) {
+  // manage the label for the dropdown - default is all genres
+  const [selectedLabel, setSelectedLabel] = useState("All genres");
+
+  // if genre is empty, assume it's all genre
+  // otherwise set label to the name of the selected genre
+  const handleSelect = (genre) => {
+    setSelectedLabel(genre === "" ? "All genres" : genre); // Update label
+    onGenreSelect(genre); // Notify parent component
+  };
 
   return (
+    // refer to React Bootstrap
     <Dropdown>
-      <Dropdown.Toggle id="dropdown-basic">
-        select genre
+      <Dropdown.Toggle id="dropdown-basic" className="button-style">
+        {/* show which genre is currently selected */}
+        {selectedLabel}
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
-        <Dropdown.Item onClick={() => onGenreSelect("")}>
+
+        {/* first item is "all genres"
+        generate more items by going through each element in the list of unique genres */}
+
+        <Dropdown.Item onClick={() => handleSelect("")}>
           All genres
         </Dropdown.Item>
         {genreList?.map((genre, index) => (
           <Dropdown.Item
             key={index}
-            onClick={() => onGenreSelect(genre)}
+            onClick={() => handleSelect(genre)}
           >
             {genre}
           </Dropdown.Item>
